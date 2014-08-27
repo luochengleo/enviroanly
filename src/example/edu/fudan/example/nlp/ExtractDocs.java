@@ -25,9 +25,9 @@ import edu.fudan.util.exception.LoadModelException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.apache.*;
-
-class Document {
-	public  Document(String time,String title,String text){
+import java.util.regex.*;
+class ExtractDocs {
+	public  ExtractDocs(String time,String title,String text){
 		this.time = time;
 		this.title = title;
 		this.text = text;
@@ -112,7 +112,7 @@ class Document {
 		Statement stmt_meta = createStatement(conn_meta);
 		BufferedWriter extractout;
 
-		extractout = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/weather_keyword.txt")));
+		extractout = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/weather_keyword_ext.txt")));
 
 		for (int i = 1; i <= 1373928; i++) {
 
@@ -129,14 +129,27 @@ class Document {
 					String dates = new String((date.getYear()+1900)+"_"+date.getMonth()+"_"+date.getDate());
 					
 					String text = rs_content.getString(12);
-					
-					if (text.contains("气候变化")){
+//					气候变化+气候变暖+温室效应+温室气体+全球变暖+地球温度+气候变迁+气候变动+气候转变+++‍
+					if (text.contains("气候变化") 
+							|| text.contains("气候变暖")
+							|| text.contains("温室效应")
+							|| text.contains("温室气体")
+							|| text.contains("全球变暖")
+							|| text.contains("地球温度")
+							|| text.contains("气候变迁")
+							|| text.contains("气候变动")
+							|| text.contains("气候转变")
+							|| text.contains("全球环境变化")
+							|| text.contains("气候环境变化")
+							|| text.contains("年平均气温")
+							){
 						BufferedWriter bw;
 						try {
-//							bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/weather/"+dates+"_"+title+".txt")));
-							extractout.write(dates+"_"+title+"\t"+key.extract(text,20,true)+"\n");
-//							bw.write(text);
-//							bw.close();
+							extractout.write(dates+"_"+title+"\t"+key.extract(text,50,true)+"\n");
+
+							bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/weatherext/"+dates+"_"+title+".txt")));
+							bw.write(text);
+							bw.close();
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
